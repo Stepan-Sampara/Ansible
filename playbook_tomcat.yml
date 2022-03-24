@@ -1,0 +1,35 @@
+---
+- name: Install Apache Web Server
+  hosts: Ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Install OpenJDK
+    apt:
+      name: openjdk-11-jre-headless
+  - name: Create a directory /opt/Tomcat
+    file:
+      path: /opt/Tomcat
+      state: directory
+      mode: '0755'
+  - name: download tomcat server packages
+    get_url:
+      url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.59/bin/apache-tomcat-9.0.59.tar.gz
+      dest: /opt/Tomcat
+  - name: extract tomcat packages
+    unarchive:
+      src: /opt/Tomcat/apache-tomcat-9.0.59.tar.gz
+      dest: /opt/Tomcat
+      remote_src: yes
+  - name: start tomcat services
+    shell: nohup /opt/Tomcat/apache-tomcat-9.0.59/bin/startup.sh
+  - name: Update repository
+    apt_repository:
+     repo: 'ppa:git-core/ppa'
+     state: present
+  - name: Install git
+    apt:
+      name: git
+      state: present
+      update_cache: yes
